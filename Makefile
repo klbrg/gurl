@@ -6,7 +6,7 @@ build:
 	go build -o $(BINARY) .
 
 test:
-	go test ./...
+	go test -cover ./...
 
 clean:
 	rm -f $(BINARY)
