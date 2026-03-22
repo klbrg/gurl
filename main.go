@@ -15,6 +15,11 @@ func run(args []string, stdout io.Writer, stderr io.Writer) int {
 		return 1
 	}
 
+	if args[1] == "version" {
+		fmt.Fprintln(stdout, "gurl version "+version)
+		return 0
+	}
+
 	req, err := http.NewRequest(http.MethodGet, args[1], nil)
 	if err != nil {
 		fmt.Fprintln(stderr, err)
