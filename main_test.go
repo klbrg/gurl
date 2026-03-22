@@ -7,6 +7,25 @@ import (
 	"testing"
 )
 
+func TestUserAgent(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ua := r.Header.Get("User-Agent")
+		expected := "gurl/" + version
+		if ua != expected {
+			t.Errorf("expected User-Agent %q, got %q", expected, ua)
+		}
+		w.Write([]byte("ok"))
+	}))
+	defer server.Close()
+
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"gurl", server.URL}, &stdout, &stderr)
+
+	if code != 0 {
+		t.Fatalf("expected exit code 0, got %d: %s", code, stderr.String())
+	}
+}
+
 func TestGetRequest(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodGet {
