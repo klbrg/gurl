@@ -7,20 +7,25 @@ import (
 	"os"
 )
 
-func main() {
-	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "usage: gurl <url>")
-		os.Exit(1)
+func run(args []string, stdout io.Writer, stderr io.Writer) int {
+	if len(args) < 2 {
+		fmt.Fprintln(stderr, "usage: gurl <url>")
+		return 1
 	}
 
 	client := &http.Client{}
 
-	resp, err := client.Get(os.Args[1])
+	resp, err := client.Get(args[1])
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
+		fmt.Fprintln(stderr, err)
+		return 1
 	}
 	defer resp.Body.Close()
 
-	io.Copy(os.Stdout, resp.Body)
+	io.Copy(stdout, resp.Body)
+	return 0
+}
+
+func main() {
+	os.Exit(run(os.Args, os.Stdout, os.Stderr))
 }
