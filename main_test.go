@@ -59,6 +59,38 @@ func TestGetRequest(t *testing.T) {
 	}
 }
 
+func TestGetCommand(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			t.Errorf("expected GET, got %s", r.Method)
+		}
+		w.Write([]byte("hello get"))
+	}))
+	defer server.Close()
+
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"gurl", "get", server.URL}, &stdout, &stderr)
+
+	if code != 0 {
+		t.Fatalf("expected exit code 0, got %d: %s", code, stderr.String())
+	}
+	if stdout.String() != "hello get" {
+		t.Errorf("expected 'hello get', got %q", stdout.String())
+	}
+}
+
+func TestGetNoURL(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"gurl", "get"}, &stdout, &stderr)
+
+	if code != 1 {
+		t.Fatalf("expected exit code 1, got %d", code)
+	}
+	if stderr.String() == "" {
+		t.Error("expected usage message on stderr")
+	}
+}
+
 func TestMissingURL(t *testing.T) {
 	var stdout, stderr bytes.Buffer
 	code := run([]string{"gurl"}, &stdout, &stderr)
