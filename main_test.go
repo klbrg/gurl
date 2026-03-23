@@ -7,6 +7,26 @@ import (
 	"testing"
 )
 
+func TestDefaultScheme(t *testing.T) {
+	req, err := buildRequest(http.MethodGet, "example.com/api")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if req.URL.Scheme != "https" {
+		t.Errorf("expected scheme 'https', got %q", req.URL.Scheme)
+	}
+}
+
+func TestExplicitSchemePreserved(t *testing.T) {
+	req, err := buildRequest(http.MethodGet, "http://example.com/api")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if req.URL.Scheme != "http" {
+		t.Errorf("expected scheme 'http', got %q", req.URL.Scheme)
+	}
+}
+
 func TestVersion(t *testing.T) {
 	var stdout, stderr bytes.Buffer
 	code := run([]string{"gurl", "version"}, &stdout, &stderr)
