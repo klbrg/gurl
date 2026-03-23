@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -59,8 +60,24 @@ func run(args []string, stdout io.Writer, stderr io.Writer) int {
 		return 1
 	}
 	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Fprintln(stderr, err)
+		return 1
+	}
 
-	io.Copy(stdout, resp.Body)
+	if strings.Contains(resp.Header.Get("Content-Type"), "application/json") {
+		var parsed any
+		if err := json.Unmarshal(body, &parsed); err == nil {
+			pretty, err := json.MarshalIndent(parsed, "", "  ")
+			if err == nil {
+				fmt.Fprintln(stdout, string(pretty))
+				return 0
+			}
+		}
+	}
+
+	stdout.Write(body)
 	return 0
 }
 

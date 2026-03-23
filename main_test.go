@@ -111,6 +111,43 @@ func TestGetNoURL(t *testing.T) {
 	}
 }
 
+func TestJSONPrettyPrint(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(`{"name":"john","age":30}`))
+	}))
+	defer server.Close()
+
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"gurl", server.URL}, &stdout, &stderr)
+
+	if code != 0 {
+		t.Fatalf("expected exit code 0, got %d: %s", code, stderr.String())
+	}
+	expected := "{\n  \"age\": 30,\n  \"name\": \"john\"\n}\n"
+	if stdout.String() != expected {
+		t.Errorf("expected %q, got %q", expected, stdout.String())
+	}
+}
+
+func TestNonJSONNotFormatted(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/plain")
+		w.Write([]byte("just plain text"))
+	}))
+	defer server.Close()
+
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"gurl", server.URL}, &stdout, &stderr)
+
+	if code != 0 {
+		t.Fatalf("expected exit code 0, got %d: %s", code, stderr.String())
+	}
+	if stdout.String() != "just plain text" {
+		t.Errorf("expected 'just plain text', got %q", stdout.String())
+	}
+}
+
 func TestMissingURL(t *testing.T) {
 	var stdout, stderr bytes.Buffer
 	code := run([]string{"gurl"}, &stdout, &stderr)
