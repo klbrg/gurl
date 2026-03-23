@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -34,7 +35,7 @@ func TestVersion(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("expected exit code 0, got %d: %s", code, stderr.String())
 	}
-	expected := "gurl version " + version + "\n"
+	expected := fmt.Sprintf("gurl version %s (%s)\n", version, commit)
 	if stdout.String() != expected {
 		t.Errorf("expected %q, got %q", expected, stdout.String())
 	}

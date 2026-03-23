@@ -11,6 +11,8 @@ import (
 
 const version = "0.1.0"
 
+var commit = "dev"
+
 func buildRequest(method string, rawURL string) (*http.Request, error) {
 	if !strings.Contains(rawURL, "://") {
 		rawURL = "https://" + rawURL
@@ -34,7 +36,7 @@ func run(args []string, stdout io.Writer, stderr io.Writer) int {
 
 	switch args[1] {
 	case "version":
-		fmt.Fprintln(stdout, "gurl version "+version)
+		fmt.Fprintf(stdout, "gurl version %s (%s)\n", version, commit)
 		return 0
 	case "get":
 		if len(args) < 3 {
