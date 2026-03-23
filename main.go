@@ -60,13 +60,12 @@ func run(args []string, stdout io.Writer, stderr io.Writer) int {
 		return 1
 	}
 	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Fprintln(stderr, err)
-		return 1
-	}
-
 	if strings.Contains(resp.Header.Get("Content-Type"), "application/json") {
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			fmt.Fprintln(stderr, err)
+			return 1
+		}
 		var parsed any
 		if err := json.Unmarshal(body, &parsed); err == nil {
 			pretty, err := json.MarshalIndent(parsed, "", "  ")
@@ -75,9 +74,10 @@ func run(args []string, stdout io.Writer, stderr io.Writer) int {
 				return 0
 			}
 		}
+		stdout.Write(body)
+	} else {
+		io.Copy(stdout, resp.Body)
 	}
-
-	stdout.Write(body)
 	return 0
 }
 
