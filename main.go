@@ -22,6 +22,7 @@ func buildRequest(method string, rawURL string) (*http.Request, error) {
 		return nil, err
 	}
 	req.Header.Set("User-Agent", "gurl/"+version)
+	req.Header.Set("Accept", "application/json")
 	return req, nil
 }
 

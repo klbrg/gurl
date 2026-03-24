@@ -41,12 +41,15 @@ func TestVersion(t *testing.T) {
 	}
 }
 
-func TestUserAgent(t *testing.T) {
+func TestDefaultHeaders(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ua := r.Header.Get("User-Agent")
-		expected := "gurl/" + version
-		if ua != expected {
-			t.Errorf("expected User-Agent %q, got %q", expected, ua)
+		if ua != "gurl/"+version {
+			t.Errorf("expected User-Agent %q, got %q", "gurl/"+version, ua)
+		}
+		accept := r.Header.Get("Accept")
+		if accept != "application/json" {
+			t.Errorf("expected Accept 'application/json', got %q", accept)
 		}
 		w.Write([]byte("ok"))
 	}))
